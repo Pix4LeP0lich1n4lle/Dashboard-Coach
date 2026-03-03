@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coach Dashboard S09 — Timestamps</title>
+    <title>Coach Dashboard — Toutes les Semaines</title>
     <style>
         * {
             margin: 0;
@@ -67,17 +67,6 @@
             color: var(--text-secondary);
         }
 
-        .badge {
-            display: inline-block;
-            background: var(--accent-yellow);
-            color: #000;
-            padding: 0.4rem 0.8rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            margin-top: 0.5rem;
-        }
-
         .theme-toggle {
             background: var(--bg-tertiary);
             border: 1px solid var(--border);
@@ -92,6 +81,71 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
+        }
+
+        .week-selector {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .selector-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.8rem;
+            display: block;
+        }
+
+        .selector-dropdown {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: 'IBM Plex Mono', monospace;
+            cursor: pointer;
+        }
+
+        .week-info {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .week-info {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .info-item {
+            text-align: center;
+        }
+
+        .info-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-green);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-top: 0.3rem;
         }
 
         .stats-grid {
@@ -297,23 +351,13 @@
             border-top: 1px solid var(--border);
             margin-top: 3rem;
         }
-
-        .alert-box {
-            background: linear-gradient(135deg, var(--accent-fire) 0%, #ff7766 100%);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 2rem;
-            font-size: 0.95rem;
-        }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="header-left">
-            <h1>📊 Coach Dashboard S09</h1>
-            <p>Suivi des Entrées — Lundi 2 Mars 2026</p>
-            <div class="badge">S09 EN COURS — 19h31</div>
+            <h1>📊 Coach Dashboard</h1>
+            <p>Suivi des Entrées — S01 à S09</p>
         </div>
         <div class="header-right">
             <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
@@ -321,111 +365,214 @@
     </div>
 
     <div class="container">
-        <div class="alert-box">
-            ⚠️ Marie Giguère et Chantal Felteau n'ont pas encore soumis d'entrée pour S09.
+        <!-- Week Selector -->
+        <div class="week-selector">
+            <label class="selector-label" for="weekSelect">Sélectionner une semaine</label>
+            <select class="selector-dropdown" id="weekSelect" onchange="updateWeek()">
+                <option value="S09">S09 — 2-8 Mars (EN COURS)</option>
+                <option value="S08">S08 — 23 Fév - 1 Mars</option>
+                <option value="S07">S07 — 16-22 Février</option>
+                <option value="S06">S06 — 9-15 Février</option>
+                <option value="S05">S05 — 2-8 Février</option>
+                <option value="S04">S04 — 26 Jan - 1 Fév</option>
+                <option value="S03">S03 — 19-25 Janvier</option>
+                <option value="S02">S02 — 12-18 Janvier</option>
+                <option value="S01">S01 — 5-11 Janvier</option>
+            </select>
         </div>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-value">3</div>
-                <div class="stat-label">Entrées</div>
+        <!-- Week Info -->
+        <div class="week-info">
+            <div class="info-item">
+                <div class="info-value" id="entryCount">0</div>
+                <div class="info-label">Entrées</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value">3</div>
-                <div class="stat-label">Actifs</div>
+            <div class="info-item">
+                <div class="info-value" id="activeCount">0</div>
+                <div class="info-label">Participants</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value">12%</div>
-                <div class="stat-label">Taux</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">J1/7</div>
-                <div class="stat-label">Semaine</div>
-            </div>
-        </div>
-
-        <h2 class="section-title">👥 Statut des Participants</h2>
-        <div class="participants-grid">
-            <div class="participant-card">
-                <div class="participant-name">Marie Giguère</div>
-                <div class="engagement-badge engagement-ghost">GHOST</div>
-                <div class="participant-stat"><span>Statut</span><span class="stat-val">🔴</span></div>
-                <div class="participant-stat"><span>Entrées</span><span class="stat-val">0</span></div>
-                <div class="participant-stat"><span>Taux</span><span class="stat-val">0%</span></div>
-            </div>
-
-            <div class="participant-card">
-                <div class="participant-name">Alex Delorey</div>
-                <div class="engagement-badge engagement-fading">FADING</div>
-                <div class="participant-stat"><span>Statut</span><span class="stat-val">✓</span></div>
-                <div class="participant-stat"><span>Entrées</span><span class="stat-val">1</span></div>
-                <div class="participant-stat"><span>Taux</span><span class="stat-val">20%</span></div>
-            </div>
-
-            <div class="participant-card">
-                <div class="participant-name">Joseph Delorey</div>
-                <div class="engagement-badge engagement-fading">FADING</div>
-                <div class="participant-stat"><span>Statut</span><span class="stat-val">✓</span></div>
-                <div class="participant-stat"><span>Entrées</span><span class="stat-val">1</span></div>
-                <div class="participant-stat"><span>Taux</span><span class="stat-val">20%</span></div>
-            </div>
-
-            <div class="participant-card">
-                <div class="participant-name">Chantal Felteau</div>
-                <div class="engagement-badge engagement-ghost">GHOST</div>
-                <div class="participant-stat"><span>Statut</span><span class="stat-val">🔴</span></div>
-                <div class="participant-stat"><span>Entrées</span><span class="stat-val">0</span></div>
-                <div class="participant-stat"><span>Taux</span><span class="stat-val">0%</span></div>
-            </div>
-
-            <div class="participant-card">
-                <div class="participant-name">Danielle Delorey</div>
-                <div class="engagement-badge engagement-fading">FADING</div>
-                <div class="participant-stat"><span>Statut</span><span class="stat-val">✓</span></div>
-                <div class="participant-stat"><span>Entrées</span><span class="stat-val">1</span></div>
-                <div class="participant-stat"><span>Taux</span><span class="stat-val">20%</span></div>
+            <div class="info-item">
+                <div class="info-value" id="avgRate">0%</div>
+                <div class="info-label">Taux Moyen</div>
             </div>
         </div>
 
-        <h2 class="section-title">📝 Entrées Journal d'Action</h2>
-        <div class="entries-container">
-            <div class="entry">
-                <div class="entry-header">
-                    <div>
-                        <div class="entry-person">✓ Alex Delorey</div>
-                        <div class="entry-day">lundi</div>
-                    </div>
-                    <div class="entry-time">07:07:40</div>
-                </div>
-            </div>
+        <!-- Stats -->
+        <div class="stats-grid" id="statsGrid"></div>
 
-            <div class="entry">
-                <div class="entry-header">
-                    <div>
-                        <div class="entry-person">✓ Joseph Delorey</div>
-                        <div class="entry-day">lundi</div>
-                    </div>
-                    <div class="entry-time">13:38:33</div>
-                </div>
-            </div>
+        <!-- Participants -->
+        <h2 class="section-title">👥 Participants</h2>
+        <div class="participants-grid" id="participantsGrid"></div>
 
-            <div class="entry">
-                <div class="entry-header">
-                    <div>
-                        <div class="entry-person">✓ Danielle Delorey</div>
-                        <div class="entry-day">lundi</div>
-                    </div>
-                    <div class="entry-time">16:22:38</div>
-                </div>
-            </div>
-        </div>
+        <!-- Entries -->
+        <h2 class="section-title">📝 Entrées</h2>
+        <div class="entries-container" id="entriesContainer"></div>
     </div>
 
     <div class="footer">
-        <p>Coach Dashboard S09 • Lundi 2 mars 2026 19h31 EST</p>
+        <p>Coach Dashboard • S01-S09 • Suivi des entrées</p>
     </div>
 
     <script>
+        const weekData = {
+            "S09": {
+                "dates": "2-8 Mars",
+                "entries": [
+                    {"person": "Alex Delorey", "time": "07:07:40", "day": "lundi"},
+                    {"person": "Joseph Delorey", "time": "13:38:33", "day": "lundi"},
+                    {"person": "Danielle Delorey", "time": "16:22:38", "day": "lundi"}
+                ],
+                "participants": {
+                    "Marie": {entries: 0, rate: 0, state: "ghost"},
+                    "Alex": {entries: 1, rate: 20, state: "fading"},
+                    "Joseph": {entries: 1, rate: 20, state: "fading"},
+                    "Chantal": {entries: 0, rate: 0, state: "ghost"},
+                    "Danielle": {entries: 1, rate: 20, state: "fading"}
+                }
+            },
+            "S08": {
+                "dates": "23 Fév - 1 Mars",
+                "entries": [],
+                "participants": {
+                    "Marie": {entries: 0, rate: 20, state: "fading"},
+                    "Alex": {entries: 0, rate: 40, state: "fading"},
+                    "Joseph": {entries: 0, rate: 30, state: "fading"},
+                    "Chantal": {entries: 0, rate: 10, state: "ghost"},
+                    "Danielle": {entries: 0, rate: 60, state: "engagement"}
+                }
+            },
+            "S07": {
+                "dates": "16-22 Février",
+                "entries": [],
+                "participants": {
+                    "Marie": {entries: 0, rate: 40, state: "fading"},
+                    "Alex": {entries: 0, rate: 20, state: "fading"},
+                    "Joseph": {entries: 0, rate: 15, state: "ghost"},
+                    "Chantal": {entries: 0, rate: 10, state: "ghost"},
+                    "Danielle": {entries: 0, rate: 70, state: "engagement"}
+                }
+            },
+            "S06": {
+                "dates": "9-15 Février",
+                "entries": [],
+                "participants": {
+                    "Marie": {entries: 0, rate: 40, state: "fading"},
+                    "Alex": {entries: 0, rate: 50, state: "fading"},
+                    "Joseph": {entries: 0, rate: 0, state: "ghost"},
+                    "Chantal": {entries: 0, rate: 0, state: "ghost"},
+                    "Danielle": {entries: 0, rate: 50, state: "fading"}
+                }
+            },
+            "S05": {
+                "dates": "2-8 Février",
+                "entries": [],
+                "participants": {
+                    "Marie": {entries: 0, rate: 0, state: "ghost"},
+                    "Alex": {entries: 0, rate: 20, state: "fading"},
+                    "Joseph": {entries: 0, rate: 0, state: "ghost"},
+                    "Chantal": {entries: 0, rate: 10, state: "ghost"},
+                    "Danielle": {entries: 0, rate: 40, state: "fading"}
+                }
+            },
+            "S04": {
+                "dates": "26 Jan - 1 Fév",
+                "entries": [],
+                "participants": {
+                    "Marie": {entries: 0, rate: 10, state: "ghost"},
+                    "Alex": {entries: 0, rate: 30, state: "fading"},
+                    "Joseph": {entries: 0, rate: 0, state: "ghost"},
+                    "Chantal": {entries: 0, rate: 20, state: "ghost"},
+                    "Danielle": {entries: 0, rate: 30, state: "fading"}
+                }
+            },
+            "S03": {
+                "dates": "19-25 Janvier",
+                "entries": [],
+                "participants": {
+                    "Marie": {entries: 0, rate: 20, state: "fading"},
+                    "Alex": {entries: 0, rate: 40, state: "fading"},
+                    "Joseph": {entries: 0, rate: 10, state: "ghost"},
+                    "Chantal": {entries: 0, rate: 15, state: "ghost"},
+                    "Danielle": {entries: 0, rate: 40, state: "fading"}
+                }
+            },
+            "S02": {
+                "dates": "12-18 Janvier",
+                "entries": [],
+                "participants": {
+                    "Marie": {entries: 0, rate: 0, state: "ghost"},
+                    "Alex": {entries: 0, rate: 10, state: "ghost"},
+                    "Joseph": {entries: 0, rate: 0, state: "ghost"},
+                    "Chantal": {entries: 0, rate: 10, state: "ghost"},
+                    "Danielle": {entries: 0, rate: 60, state: "engagement"}
+                }
+            },
+            "S01": {
+                "dates": "5-11 Janvier",
+                "entries": [],
+                "participants": {
+                    "Marie": {entries: 0, rate: 40, state: "fading"},
+                    "Alex": {entries: 0, rate: 20, state: "fading"},
+                    "Joseph": {entries: 0, rate: 0, state: "ghost"},
+                    "Chantal": {entries: 0, rate: 10, state: "ghost"},
+                    "Danielle": {entries: 0, rate: 100, state: "feu"}
+                }
+            }
+        };
+
+        const participantNames = ["Marie Giguère", "Alex Delorey", "Joseph Delorey", "Chantal Felteau", "Danielle Delorey"];
+
+        function updateWeek() {
+            const week = document.getElementById('weekSelect').value;
+            const data = weekData[week];
+
+            // Update week info
+            document.getElementById('entryCount').textContent = data.entries.length;
+            const activeCount = Object.values(data.participants).filter(p => p.entries > 0).length;
+            document.getElementById('activeCount').textContent = activeCount;
+            const avgRate = Math.round(Object.values(data.participants).reduce((sum, p) => sum + p.rate, 0) / 5);
+            document.getElementById('avgRate').textContent = avgRate + '%';
+
+            // Update stats
+            let statsHtml = '';
+            statsHtml += '<div class="stat-card"><div class="stat-value">' + data.entries.length + '</div><div class="stat-label">Entrées</div></div>';
+            statsHtml += '<div class="stat-card"><div class="stat-value">' + activeCount + '</div><div class="stat-label">Actifs</div></div>';
+            statsHtml += '<div class="stat-card"><div class="stat-value">' + avgRate + '%</div><div class="stat-label">Taux</div></div>';
+            statsHtml += '<div class="stat-card"><div class="stat-value">' + week + '</div><div class="stat-label">Semaine</div></div>';
+            document.getElementById('statsGrid').innerHTML = statsHtml;
+
+            // Update participants
+            let participantsHtml = '';
+            for (const name of participantNames) {
+                const key = name.split(' ')[0];
+                const pData = data.participants[key];
+                const badgeClass = pData.state === 'feu' ? 'engagement-fading' : (pData.state === 'engagement' ? 'engagement-fading' : 'engagement-ghost');
+                
+                participantsHtml += '<div class="participant-card">';
+                participantsHtml += '<div class="participant-name">' + name + '</div>';
+                participantsHtml += '<div class="engagement-badge ' + badgeClass + '">' + pData.state + '</div>';
+                participantsHtml += '<div class="participant-stat"><span>Entrées</span><span class="stat-val">' + pData.entries + '</span></div>';
+                participantsHtml += '<div class="participant-stat"><span>Taux</span><span class="stat-val">' + pData.rate + '%</span></div>';
+                participantsHtml += '</div>';
+            }
+            document.getElementById('participantsGrid').innerHTML = participantsHtml;
+
+            // Update entries
+            if (data.entries.length === 0) {
+                document.getElementById('entriesContainer').innerHTML = '<div class="empty-state">Aucune entrée cette semaine</div>';
+            } else {
+                let entriesHtml = '';
+                for (const entry of data.entries) {
+                    entriesHtml += '<div class="entry">';
+                    entriesHtml += '<div class="entry-header">';
+                    entriesHtml += '<div><div class="entry-person">✓ ' + entry.person + '</div><div class="entry-day">' + entry.day + '</div></div>';
+                    entriesHtml += '<div class="entry-time">' + entry.time + '</div>';
+                    entriesHtml += '</div></div>';
+                }
+                document.getElementById('entriesContainer').innerHTML = entriesHtml;
+            }
+        }
+
         function toggleTheme() {
             const html = document.documentElement;
             html.classList.toggle('light-mode');
@@ -437,7 +584,9 @@
             document.documentElement.classList.add('light-mode');
             document.querySelector('.theme-toggle').textContent = '☀️ Light';
         }
+
+        // Initialize
+        updateWeek();
     </script>
 </body>
 </html>
-<\!-- Force rebuild 1772499350870046434 -->
