@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coach Dashboard S09 — Live Journal Entries</title>
+    <title>Coach Dashboard S09 — Timestamps</title>
     <style>
         * {
             margin: 0;
@@ -42,7 +42,6 @@
             background: var(--bg-primary);
             color: var(--text-primary);
             line-height: 1.6;
-            transition: background-color 0.3s, color 0.3s;
         }
 
         .header {
@@ -55,13 +54,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            backdrop-filter: blur(10px);
         }
 
         .header-left h1 {
             font-size: 1.8rem;
             font-weight: 700;
-            letter-spacing: -0.5px;
             margin-bottom: 0.3rem;
         }
 
@@ -81,12 +78,6 @@
             margin-top: 0.5rem;
         }
 
-        .header-right {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
         .theme-toggle {
             background: var(--bg-tertiary);
             border: 1px solid var(--border);
@@ -98,7 +89,7 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
         }
@@ -232,7 +223,7 @@
             color: var(--text-primary);
         }
 
-        .journal-container {
+        .entries-container {
             background: var(--bg-secondary);
             border: 1px solid var(--border);
             border-radius: 8px;
@@ -240,75 +231,51 @@
             margin-bottom: 3rem;
         }
 
-        .journal-entry {
+        .entry {
             padding: 1.5rem;
             border-bottom: 1px solid var(--border);
             transition: all 0.3s;
             animation: fadeInUp 0.4s ease-out;
         }
 
-        .journal-entry:hover {
+        .entry:hover {
             background: var(--hover);
         }
 
-        .journal-entry:last-child {
+        .entry:last-child {
             border-bottom: none;
         }
 
         .entry-header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 0.8rem;
+            align-items: center;
         }
 
         .entry-person {
             font-weight: 700;
             color: var(--text-primary);
-            font-size: 1rem;
+            font-size: 1.1rem;
         }
 
         .entry-time {
             font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: var(--accent-fire);
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .entry-day {
             font-size: 0.75rem;
             color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 0.2rem;
-        }
-
-        .entry-action {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.6;
-            padding-left: 1rem;
-            border-left: 3px solid var(--accent-fire);
+            text-transform: capitalize;
+            margin-top: 0.3rem;
         }
 
         .empty-state {
             text-align: center;
             padding: 3rem;
             color: var(--text-muted);
-        }
-
-        .empty-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .timestamp-meta {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border);
-            font-family: 'IBM Plex Mono', monospace;
         }
 
         @keyframes fadeInUp {
@@ -338,13 +305,6 @@
             border-radius: 8px;
             margin-bottom: 2rem;
             font-size: 0.95rem;
-            line-height: 1.6;
-        }
-
-        .alert-box strong {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-size: 1.1rem;
         }
     </style>
 </head>
@@ -352,7 +312,7 @@
     <div class="header">
         <div class="header-left">
             <h1>📊 Coach Dashboard S09</h1>
-            <p>Journal d'Action en Temps Réel — Lundi 2 Mars 2026</p>
+            <p>Suivi des Entrées — Lundi 2 Mars 2026</p>
             <div class="badge">S09 EN COURS — 19h31</div>
         </div>
         <div class="header-right">
@@ -361,195 +321,108 @@
     </div>
 
     <div class="container">
-        <!-- Alert Section -->
         <div class="alert-box">
-            <strong>⚠️ Attention Requise</strong>
-            Marie Giguère et Chantal Felteau n'ont pas encore soumis d'entrée pour S09. Check-in recommandé dès demain.
+            ⚠️ Marie Giguère et Chantal Felteau n'ont pas encore soumis d'entrée pour S09.
         </div>
 
-        <!-- Stats -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-value">3</div>
-                <div class="stat-label">Entrées Aujourd'hui</div>
+                <div class="stat-label">Entrées</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value">3</div>
-                <div class="stat-label">Participants Actifs</div>
+                <div class="stat-label">Actifs</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value">12%</div>
-                <div class="stat-label">Taux Moyen</div>
+                <div class="stat-label">Taux</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value">Jour 1/7</div>
-                <div class="stat-label">Progression</div>
+                <div class="stat-value">J1/7</div>
+                <div class="stat-label">Semaine</div>
             </div>
         </div>
 
-        <!-- Participant Cards -->
         <h2 class="section-title">👥 Statut des Participants</h2>
         <div class="participants-grid">
-            <!-- Marie -->
             <div class="participant-card">
                 <div class="participant-name">Marie Giguère</div>
                 <div class="engagement-badge engagement-ghost">GHOST</div>
-                <div class="participant-stat">
-                    <span>Statut</span>
-                    <span class="stat-val">🔴 Inactif</span>
-                </div>
-                <div class="participant-stat">
-                    <span>Entrées</span>
-                    <span class="stat-val">0</span>
-                </div>
-                <div class="participant-stat">
-                    <span>Taux S09</span>
-                    <span class="stat-val">0%</span>
-                </div>
+                <div class="participant-stat"><span>Statut</span><span class="stat-val">🔴</span></div>
+                <div class="participant-stat"><span>Entrées</span><span class="stat-val">0</span></div>
+                <div class="participant-stat"><span>Taux</span><span class="stat-val">0%</span></div>
             </div>
 
-            <!-- Alex -->
             <div class="participant-card">
                 <div class="participant-name">Alex Delorey</div>
                 <div class="engagement-badge engagement-fading">FADING</div>
-                <div class="participant-stat">
-                    <span>Statut</span>
-                    <span class="stat-val">✓ Actif</span>
-                </div>
-                <div class="participant-stat">
-                    <span>Entrées</span>
-                    <span class="stat-val">1</span>
-                </div>
-                <div class="participant-stat">
-                    <span>Taux S09</span>
-                    <span class="stat-val">20%</span>
-                </div>
+                <div class="participant-stat"><span>Statut</span><span class="stat-val">✓</span></div>
+                <div class="participant-stat"><span>Entrées</span><span class="stat-val">1</span></div>
+                <div class="participant-stat"><span>Taux</span><span class="stat-val">20%</span></div>
             </div>
 
-            <!-- Joseph -->
             <div class="participant-card">
                 <div class="participant-name">Joseph Delorey</div>
                 <div class="engagement-badge engagement-fading">FADING</div>
-                <div class="participant-stat">
-                    <span>Statut</span>
-                    <span class="stat-val">✓ Actif</span>
-                </div>
-                <div class="participant-stat">
-                    <span>Entrées</span>
-                    <span class="stat-val">1</span>
-                </div>
-                <div class="participant-stat">
-                    <span>Taux S09</span>
-                    <span class="stat-val">20%</span>
-                </div>
+                <div class="participant-stat"><span>Statut</span><span class="stat-val">✓</span></div>
+                <div class="participant-stat"><span>Entrées</span><span class="stat-val">1</span></div>
+                <div class="participant-stat"><span>Taux</span><span class="stat-val">20%</span></div>
             </div>
 
-            <!-- Chantal -->
             <div class="participant-card">
                 <div class="participant-name">Chantal Felteau</div>
                 <div class="engagement-badge engagement-ghost">GHOST</div>
-                <div class="participant-stat">
-                    <span>Statut</span>
-                    <span class="stat-val">🔴 Inactif</span>
-                </div>
-                <div class="participant-stat">
-                    <span>Entrées</span>
-                    <span class="stat-val">0</span>
-                </div>
-                <div class="participant-stat">
-                    <span>Taux S09</span>
-                    <span class="stat-val">0%</span>
-                </div>
+                <div class="participant-stat"><span>Statut</span><span class="stat-val">🔴</span></div>
+                <div class="participant-stat"><span>Entrées</span><span class="stat-val">0</span></div>
+                <div class="participant-stat"><span>Taux</span><span class="stat-val">0%</span></div>
             </div>
 
-            <!-- Danielle -->
             <div class="participant-card">
                 <div class="participant-name">Danielle Delorey</div>
                 <div class="engagement-badge engagement-fading">FADING</div>
-                <div class="participant-stat">
-                    <span>Statut</span>
-                    <span class="stat-val">✓ Actif</span>
-                </div>
-                <div class="participant-stat">
-                    <span>Entrées</span>
-                    <span class="stat-val">1</span>
-                </div>
-                <div class="participant-stat">
-                    <span>Taux S09</span>
-                    <span class="stat-val">20%</span>
-                </div>
+                <div class="participant-stat"><span>Statut</span><span class="stat-val">✓</span></div>
+                <div class="participant-stat"><span>Entrées</span><span class="stat-val">1</span></div>
+                <div class="participant-stat"><span>Taux</span><span class="stat-val">20%</span></div>
             </div>
         </div>
 
-        <!-- Journal Entries -->
-        <h2 class="section-title">📝 Entrées Journal d'Action (Lundi 2 Mars)</h2>
-        <div class="journal-container">
-            <!-- Alex 07:07 -->
-            <div class="journal-entry">
+        <h2 class="section-title">📝 Entrées Journal d'Action</h2>
+        <div class="entries-container">
+            <div class="entry">
                 <div class="entry-header">
                     <div>
                         <div class="entry-person">✓ Alex Delorey</div>
-                        <div class="entry-day">lundi 02 mars</div>
+                        <div class="entry-day">lundi</div>
                     </div>
                     <div class="entry-time">07:07:40</div>
                 </div>
-                <div class="entry-action">Coach Joseph m'a donné des objectifs beaucoup trop gros en vue de mes grosses semaines de travail qui débutent cette semaine et qui continuent jusqu'au 30 avril. Donc je ne respecterai pas le plan à la lettre. Mes objectifs pour les prochaines semaines seront de faire en moyenne 4500 pas par jour et de m'entraîner 3 fois par semaine minimum. Pour lundi, je suis à la maison, donc je vais en profiter pour faire une belle marche de 30-40 minutes. I'll keep you posted.</div>
-                <div class="timestamp-meta">📍 07:07:40 (matin tôt)</div>
             </div>
 
-            <!-- Joseph 13:38 -->
-            <div class="journal-entry">
+            <div class="entry">
                 <div class="entry-header">
                     <div>
                         <div class="entry-person">✓ Joseph Delorey</div>
-                        <div class="entry-day">lundi 02 mars</div>
+                        <div class="entry-day">lundi</div>
                     </div>
                     <div class="entry-time">13:38:33</div>
                 </div>
-                <div class="entry-action">Heures de réveil 6h45, petit déjeuner tranquille. Au boulot depuis 9h, présentement en pause dîner. (13h36) Je mange une salade verte et j'me sent bien. J'ai configurée mon agenda pour structurer mes journées plus intelligement. Je suis sobre, mon 24h commence bien. Il fait soleil</div>
-                <div class="timestamp-meta">📍 13:38:33 (midi)</div>
             </div>
 
-            <!-- Danielle 16:22 -->
-            <div class="journal-entry">
+            <div class="entry">
                 <div class="entry-header">
                     <div>
                         <div class="entry-person">✓ Danielle Delorey</div>
-                        <div class="entry-day">lundi 02 mars</div>
+                        <div class="entry-day">lundi</div>
                     </div>
                     <div class="entry-time">16:22:38</div>
                 </div>
-                <div class="entry-action">Lundi 2 mars. Lit fait ce matin. Méditation et étirements faits après l'épicerie adj. je suis en Semaine de relâche et ce matin j'ai été longtemps sur mon cell, demain will be better ! Quand j'ai fini par m'activer j'ai moins utilisé mes réseaux.</div>
-                <div class="timestamp-meta">📍 16:22:38 (après-midi)</div>
-            </div>
-        </div>
-
-        <!-- Summary -->
-        <h2 class="section-title">📈 Analyse du Jour 1</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-            <div style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;">
-                <h3 style="margin-bottom: 1rem; color: var(--text-primary);">✅ Points Positifs</h3>
-                <ul style="list-style: none; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8;">
-                    <li>🟢 <strong>Alex:</strong> Entrée matinale pragmatique (7h07) — Réajustement honnête du plan</li>
-                    <li>🟢 <strong>Joseph:</strong> Entrée midi complète (13h38) — Structure mise en place, sobrité confirmée</li>
-                    <li>🟢 <strong>Danielle:</strong> Entrée après-midi (16h22) — Insight clé: activité réduit phone scrolling</li>
-                </ul>
-            </div>
-
-            <div style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem;">
-                <h3 style="margin-bottom: 1rem; color: var(--text-primary);">⚠️ Attention Requise</h3>
-                <ul style="list-style: none; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8;">
-                    <li>🔴 <strong>Marie:</strong> Silence total (J1) — Check-in mardi AM recommandé</li>
-                    <li>🔴 <strong>Chantal:</strong> Silence total (J1) — Prompt micro-moment mardi</li>
-                    <li>📊 <strong>Tendance:</strong> 60% participation (3/5) — Jour 1 acceptable</li>
-                </ul>
             </div>
         </div>
     </div>
 
     <div class="footer">
-        <p>Coach Dashboard S09 • Mise à jour live • Données vérifiées Google Sheets</p>
-        <p style="margin-top: 0.5rem;">Lundi 2 mars 2026 19h31 EST • 3 entrées • 3 participants actifs</p>
+        <p>Coach Dashboard S09 • Lundi 2 mars 2026 19h31 EST</p>
     </div>
 
     <script>
@@ -567,4 +440,3 @@
     </script>
 </body>
 </html>
-<\!-- Force rebuild: 1772498986 -->
