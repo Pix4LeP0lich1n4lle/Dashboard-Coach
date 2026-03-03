@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coach Dashboard — Toutes les Semaines</title>
+    <title>Coach Dashboard — Semaines + Progrès Global</title>
     <style>
         * {
             margin: 0;
@@ -67,7 +67,13 @@
             color: var(--text-secondary);
         }
 
-        .theme-toggle {
+        .header-right {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .theme-toggle, .progress-btn {
             background: var(--bg-tertiary);
             border: 1px solid var(--border);
             color: var(--text-primary);
@@ -75,12 +81,33 @@
             border-radius: 6px;
             cursor: pointer;
             font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover, .progress-btn:hover {
+            background: var(--hover);
+            border-color: var(--accent-fire);
+        }
+
+        .progress-btn.active {
+            background: var(--accent-fire);
+            color: white;
+            border-color: var(--accent-fire);
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
+        }
+
+        /* WEEK SELECTOR VIEW */
+        .week-view {
+            display: none;
+        }
+
+        .week-view.active {
+            display: block;
         }
 
         .week-selector {
@@ -120,8 +147,14 @@
             padding: 1.5rem;
             margin-bottom: 2rem;
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .week-info {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         @media (max-width: 600px) {
@@ -148,59 +181,11 @@
             margin-top: 0.3rem;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-bottom: 3rem;
-        }
-
-        @media (max-width: 1000px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        .stat-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1.5rem;
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: var(--accent-fire);
-            margin-bottom: 0.5rem;
-            font-family: 'IBM Plex Mono', monospace;
-        }
-
-        .stat-label {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
         .participants-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 1.5rem;
-            margin-bottom: 3rem;
-        }
-
-        @media (max-width: 1200px) {
-            .participants-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 600px) {
-            .participants-grid {
-                grid-template-columns: 1fr;
-            }
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
         }
 
         .participant-card {
@@ -208,148 +193,362 @@
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 1.5rem;
-            transition: all 0.3s;
-            animation: fadeInUp 0.6s ease-out;
+            transition: all 0.3s ease;
         }
-
-        .participant-card:nth-child(1) { animation-delay: 0.05s; }
-        .participant-card:nth-child(2) { animation-delay: 0.1s; }
-        .participant-card:nth-child(3) { animation-delay: 0.15s; }
-        .participant-card:nth-child(4) { animation-delay: 0.2s; }
-        .participant-card:nth-child(5) { animation-delay: 0.25s; }
 
         .participant-card:hover {
             border-color: var(--accent-fire);
-            background: var(--hover);
-            transform: translateY(-2px);
+            background: var(--bg-tertiary);
         }
 
         .participant-name {
             font-size: 1.1rem;
             font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.8rem;
         }
 
         .engagement-badge {
             display: inline-block;
+            font-size: 0.75rem;
             padding: 0.4rem 0.8rem;
             border-radius: 4px;
-            font-size: 0.75rem;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
             margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .engagement-feu {
+            background: rgba(255, 94, 77, 0.2);
+            color: var(--accent-fire);
+        }
+
+        .engagement-engagement {
+            background: rgba(46, 204, 113, 0.2);
+            color: var(--accent-green);
         }
 
         .engagement-fading {
-            background: var(--accent-yellow);
-            color: #000;
+            background: rgba(243, 156, 18, 0.2);
+            color: var(--accent-yellow);
         }
 
         .engagement-ghost {
-            background: var(--accent-gray);
-            color: white;
+            background: rgba(73, 85, 102, 0.2);
+            color: var(--accent-gray);
         }
 
-        .participant-stat {
+        .stat-row {
             display: flex;
             justify-content: space-between;
-            padding: 0.5rem 0;
+            align-items: center;
+            margin-bottom: 0.8rem;
             font-size: 0.9rem;
-            border-bottom: 1px solid var(--border);
         }
 
-        .participant-stat:last-child {
-            border-bottom: none;
+        .stat-label {
+            color: var(--text-secondary);
         }
 
-        .stat-val {
-            font-weight: 700;
-            color: var(--accent-fire);
+        .stat-value {
+            font-weight: 600;
             font-family: 'IBM Plex Mono', monospace;
         }
 
-        .section-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            color: var(--text-primary);
-        }
-
-        .entries-container {
+        /* ENTRIES SECTION */
+        .entries-section {
             background: var(--bg-secondary);
             border: 1px solid var(--border);
             border-radius: 8px;
-            overflow: hidden;
-            margin-bottom: 3rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .entries-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+
+        .entries-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
         }
 
         .entry {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border);
-            transition: all 0.3s;
-            animation: fadeInUp 0.4s ease-out;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            transition: all 0.2s ease;
         }
 
         .entry:hover {
-            background: var(--hover);
-        }
-
-        .entry:last-child {
-            border-bottom: none;
+            border-color: var(--accent-fire);
+            background: rgba(255, 94, 77, 0.05);
         }
 
         .entry-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
         }
 
         .entry-person {
             font-weight: 700;
             color: var(--text-primary);
-            font-size: 1.1rem;
+            font-size: 0.95rem;
+        }
+
+        .entry-day {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: capitalize;
+            margin-top: 0.2rem;
         }
 
         .entry-time {
             font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.9rem;
             color: var(--accent-fire);
-            font-weight: 700;
+            font-weight: 600;
+            font-size: 0.95rem;
         }
 
-        .entry-day {
+        .no-entries {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 2rem;
+            font-size: 0.9rem;
+        }
+
+        /* PROGRESS GLOBAL VIEW */
+        .progress-view {
+            display: none;
+        }
+
+        .progress-view.active {
+            display: block;
+        }
+
+        .progress-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .participant-progress {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .participant-progress-header {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .chart-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .weeks-row {
+            display: flex;
+            gap: 0.3rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .week-bar {
+            flex: 1;
+            min-width: 30px;
+            height: 40px;
+            border-radius: 4px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .week-bar:hover {
+            transform: scaleY(1.1);
+        }
+
+        .week-bar-feu {
+            background: linear-gradient(180deg, #ff5e4d 0%, rgba(255, 94, 77, 0.5) 100%);
+            color: white;
+        }
+
+        .week-bar-engagement {
+            background: linear-gradient(180deg, #2ecc71 0%, rgba(46, 204, 113, 0.5) 100%);
+            color: white;
+        }
+
+        .week-bar-fading {
+            background: linear-gradient(180deg, #f39c12 0%, rgba(243, 156, 18, 0.5) 100%);
+            color: white;
+        }
+
+        .week-bar-ghost {
+            background: rgba(73, 85, 102, 0.3);
+            color: var(--text-muted);
+        }
+
+        .week-labels {
+            display: flex;
+            gap: 0.3rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .week-label {
+            flex: 1;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        @media (max-width: 600px) {
+            .progress-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .header-right {
+                width: 100%;
+            }
+        }
+
+        .progress-stat {
+            text-align: center;
+        }
+
+        .progress-stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent-green);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .progress-stat-label {
             font-size: 0.75rem;
             color: var(--text-muted);
-            text-transform: capitalize;
+            text-transform: uppercase;
             margin-top: 0.3rem;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: var(--text-muted);
+        /* COMPARISON TABLE */
+        .comparison-table {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            overflow-x: auto;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .comparison-table table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
         }
 
-        .footer {
+        .comparison-table th {
+            background: var(--bg-tertiary);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table tr:hover {
+            background: rgba(255, 94, 77, 0.05);
+        }
+
+        .comparison-table .name-col {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .comparison-table .stat-cell {
+            font-family: 'IBM Plex Mono', monospace;
             text-align: center;
-            padding: 2rem;
-            color: var(--text-muted);
-            font-size: 0.8rem;
+            color: var(--accent-green);
+        }
+
+        .comparison-table .average-cell {
+            font-weight: 600;
+            background: rgba(46, 204, 113, 0.1);
+        }
+
+        .legend {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
             border-top: 1px solid var(--border);
-            margin-top: 3rem;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-box {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        .legend-box-feu {
+            background: #ff5e4d;
+        }
+
+        .legend-box-engagement {
+            background: #2ecc71;
+        }
+
+        .legend-box-fading {
+            background: #f39c12;
+        }
+
+        .legend-box-ghost {
+            background: #495566;
         }
     </style>
 </head>
@@ -357,235 +556,259 @@
     <div class="header">
         <div class="header-left">
             <h1>📊 Coach Dashboard</h1>
-            <p>Suivi des Entrées — S01 à S09</p>
+            <p>Suivi S01 à S09 — 5 Jan - 8 Mar 2026</p>
         </div>
         <div class="header-right">
+            <button class="progress-btn active" data-view="week" onclick="switchView('week')">
+                📅 Par Semaine
+            </button>
+            <button class="progress-btn" data-view="progress" onclick="switchView('progress')">
+                📈 Progrès Global
+            </button>
             <button class="theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
         </div>
     </div>
 
     <div class="container">
-        <!-- Week Selector -->
-        <div class="week-selector">
-            <label class="selector-label" for="weekSelect">Sélectionner une semaine</label>
-            <select class="selector-dropdown" id="weekSelect" onchange="updateWeek()">
-                <option value="S09">S09 — 2-8 Mars (EN COURS)</option>
-                <option value="S08">S08 — 23 Fév - 1 Mars</option>
-                <option value="S07">S07 — 16-22 Février</option>
-                <option value="S06">S06 — 9-15 Février</option>
-                <option value="S05">S05 — 2-8 Février</option>
-                <option value="S04">S04 — 26 Jan - 1 Fév</option>
-                <option value="S03">S03 — 19-25 Janvier</option>
-                <option value="S02">S02 — 12-18 Janvier</option>
-                <option value="S01">S01 — 5-11 Janvier</option>
-            </select>
+        <!-- WEEK VIEW -->
+        <div class="week-view active" id="weekView">
+            <div class="week-selector">
+                <label class="selector-label">Sélectionner une semaine</label>
+                <select class="selector-dropdown" id="weekSelect" onchange="updateWeek()">
+                    <option value="S09">S09 — 2-8 Mars 2026 (EN COURS)</option>
+                    <option value="S08">S08 — 23 Fév - 1 Mars</option>
+                    <option value="S07">S07 — 16-22 Fév</option>
+                    <option value="S06">S06 — 9-15 Fév</option>
+                    <option value="S05">S05 — 2-8 Fév</option>
+                    <option value="S04">S04 — 26 Jan - 1 Fév</option>
+                    <option value="S03">S03 — 19-25 Jan</option>
+                    <option value="S02">S02 — 12-18 Jan</option>
+                    <option value="S01">S01 — 5-11 Jan</option>
+                </select>
+            </div>
+
+            <div class="week-info">
+                <div class="info-item">
+                    <div class="info-value" id="totalEntries">0</div>
+                    <div class="info-label">Entrées</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value" id="activeParticipants">0</div>
+                    <div class="info-label">Participants Actifs</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value" id="avgRate">0%</div>
+                    <div class="info-label">Taux Moyen</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value" id="weekNum">S09</div>
+                    <div class="info-label">Semaine</div>
+                </div>
+            </div>
+
+            <div class="participants-grid" id="participantsGrid"></div>
+
+            <div class="entries-section">
+                <div class="entries-title">✓ Entrées Journal d'Action</div>
+                <div class="entries-container" id="entriesContainer"></div>
+            </div>
         </div>
 
-        <!-- Week Info -->
-        <div class="week-info">
-            <div class="info-item">
-                <div class="info-value" id="entryCount">0</div>
-                <div class="info-label">Entrées</div>
-            </div>
-            <div class="info-item">
-                <div class="info-value" id="activeCount">0</div>
-                <div class="info-label">Participants</div>
-            </div>
-            <div class="info-item">
-                <div class="info-value" id="avgRate">0%</div>
-                <div class="info-label">Taux Moyen</div>
+        <!-- PROGRESS VIEW -->
+        <div class="progress-view" id="progressView">
+            <div class="progress-grid" id="progressGrid"></div>
+
+            <div class="comparison-table">
+                <h2 style="margin-bottom: 1.5rem; font-size: 1.1rem;">📊 Tableau Comparatif S01-S09</h2>
+                <table id="comparisonTable"></table>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-box legend-box-feu"></div>
+                        <span>🔥 FEU (≥100%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box legend-box-engagement"></div>
+                        <span>🟢 ENGAGEMENT (60-99%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box legend-box-fading"></div>
+                        <span>🟡 FADING (20-59%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box legend-box-ghost"></div>
+                        <span>🔴 GHOST (&lt;20%)</span>
+                    </div>
+                </div>
             </div>
         </div>
-
-        <!-- Stats -->
-        <div class="stats-grid" id="statsGrid"></div>
-
-        <!-- Participants -->
-        <h2 class="section-title">👥 Participants</h2>
-        <div class="participants-grid" id="participantsGrid"></div>
-
-        <!-- Entries -->
-        <h2 class="section-title">📝 Entrées</h2>
-        <div class="entries-container" id="entriesContainer"></div>
-    </div>
-
-    <div class="footer">
-        <p>Coach Dashboard • S01-S09 • Suivi des entrées</p>
     </div>
 
     <script>
+        // Complete data S01-S09
         const weekData = {
-            "S09": {
-                "dates": "2-8 Mars",
-                "entries": [
-                    {"person": "Alex Delorey", "time": "07:07:40", "day": "lundi"},
-                    {"person": "Joseph Delorey", "time": "13:38:33", "day": "lundi"},
-                    {"person": "Danielle Delorey", "time": "16:22:38", "day": "lundi"}
-                ],
-                "participants": {
-                    "Marie": {entries: 0, rate: 0, state: "ghost"},
-                    "Alex": {entries: 1, rate: 20, state: "fading"},
-                    "Joseph": {entries: 1, rate: 20, state: "fading"},
-                    "Chantal": {entries: 0, rate: 0, state: "ghost"},
-                    "Danielle": {entries: 1, rate: 20, state: "fading"}
-                }
-            },
-            "S08": {
-                "dates": "23 Fév - 1 Mars",
-                "entries": [],
-                "participants": {
-                    "Marie": {entries: 0, rate: 20, state: "fading"},
-                    "Alex": {entries: 0, rate: 40, state: "fading"},
-                    "Joseph": {entries: 0, rate: 30, state: "fading"},
-                    "Chantal": {entries: 0, rate: 10, state: "ghost"},
-                    "Danielle": {entries: 0, rate: 60, state: "engagement"}
-                }
-            },
-            "S07": {
-                "dates": "16-22 Février",
-                "entries": [],
-                "participants": {
-                    "Marie": {entries: 0, rate: 40, state: "fading"},
-                    "Alex": {entries: 0, rate: 20, state: "fading"},
-                    "Joseph": {entries: 0, rate: 15, state: "ghost"},
-                    "Chantal": {entries: 0, rate: 10, state: "ghost"},
-                    "Danielle": {entries: 0, rate: 70, state: "engagement"}
-                }
-            },
-            "S06": {
-                "dates": "9-15 Février",
-                "entries": [],
-                "participants": {
-                    "Marie": {entries: 0, rate: 40, state: "fading"},
-                    "Alex": {entries: 0, rate: 50, state: "fading"},
-                    "Joseph": {entries: 0, rate: 0, state: "ghost"},
-                    "Chantal": {entries: 0, rate: 0, state: "ghost"},
-                    "Danielle": {entries: 0, rate: 50, state: "fading"}
-                }
-            },
-            "S05": {
-                "dates": "2-8 Février",
-                "entries": [],
-                "participants": {
-                    "Marie": {entries: 0, rate: 0, state: "ghost"},
-                    "Alex": {entries: 0, rate: 20, state: "fading"},
-                    "Joseph": {entries: 0, rate: 0, state: "ghost"},
-                    "Chantal": {entries: 0, rate: 10, state: "ghost"},
-                    "Danielle": {entries: 0, rate: 40, state: "fading"}
-                }
-            },
-            "S04": {
-                "dates": "26 Jan - 1 Fév",
-                "entries": [],
-                "participants": {
-                    "Marie": {entries: 0, rate: 10, state: "ghost"},
-                    "Alex": {entries: 0, rate: 30, state: "fading"},
-                    "Joseph": {entries: 0, rate: 0, state: "ghost"},
-                    "Chantal": {entries: 0, rate: 20, state: "ghost"},
-                    "Danielle": {entries: 0, rate: 30, state: "fading"}
-                }
-            },
-            "S03": {
-                "dates": "19-25 Janvier",
-                "entries": [],
-                "participants": {
-                    "Marie": {entries: 0, rate: 20, state: "fading"},
-                    "Alex": {entries: 0, rate: 40, state: "fading"},
-                    "Joseph": {entries: 0, rate: 10, state: "ghost"},
-                    "Chantal": {entries: 0, rate: 15, state: "ghost"},
-                    "Danielle": {entries: 0, rate: 40, state: "fading"}
-                }
-            },
-            "S02": {
-                "dates": "12-18 Janvier",
-                "entries": [],
-                "participants": {
-                    "Marie": {entries: 0, rate: 0, state: "ghost"},
-                    "Alex": {entries: 0, rate: 10, state: "ghost"},
-                    "Joseph": {entries: 0, rate: 0, state: "ghost"},
-                    "Chantal": {entries: 0, rate: 10, state: "ghost"},
-                    "Danielle": {entries: 0, rate: 60, state: "engagement"}
-                }
-            },
-            "S01": {
-                "dates": "5-11 Janvier",
-                "entries": [],
-                "participants": {
-                    "Marie": {entries: 0, rate: 40, state: "fading"},
-                    "Alex": {entries: 0, rate: 20, state: "fading"},
-                    "Joseph": {entries: 0, rate: 0, state: "ghost"},
-                    "Chantal": {entries: 0, rate: 10, state: "ghost"},
-                    "Danielle": {entries: 0, rate: 100, state: "feu"}
-                }
-            }
+            S01: { dateRange: "5-11 Jan", entries: [{participant: "Marie Giguère", time: "17:25:50", jour: "dimanche"}, {participant: "Joseph Delorey", time: "17:25:50", jour: "dimanche"}], participants: {"Marie Giguère": {totalEntries: 1, successRate: 40, engagementState: "fading"}, "Alex Delorey": {totalEntries: 0, successRate: 20, engagementState: "fading"}, "Joseph Delorey": {totalEntries: 1, successRate: 0, engagementState: "ghost"}, "Chantal Felteau": {totalEntries: 0, successRate: 10, engagementState: "ghost"}, "Danielle Delorey": {totalEntries: 0, successRate: 100, engagementState: "feu"}}},
+            S02: { dateRange: "12-18 Jan", entries: [{participant: "Marie Giguère", time: "19:53:29", jour: "mardi"}, {participant: "Alex Delorey", time: "18:11:57", jour: "lundi"}, {participant: "Alex Delorey", time: "20:26:12", jour: "mardi"}], participants: {"Marie Giguère": {totalEntries: 1, successRate: 0, engagementState: "ghost"}, "Alex Delorey": {totalEntries: 4, successRate: 10, engagementState: "ghost"}, "Joseph Delorey": {totalEntries: 0, successRate: 0, engagementState: "ghost"}, "Chantal Felteau": {totalEntries: 0, successRate: 0, engagementState: "ghost"}, "Danielle Delorey": {totalEntries: 0, successRate: 60, engagementState: "engagement"}}},
+            S03: { dateRange: "19-25 Jan", entries: [], participants: {"Marie Giguère": {totalEntries: 0, successRate: 20, engagementState: "fading"}, "Alex Delorey": {totalEntries: 0, successRate: 40, engagementState: "fading"}, "Joseph Delorey": {totalEntries: 0, successRate: 10, engagementState: "ghost"}, "Chantal Felteau": {totalEntries: 0, successRate: 15, engagementState: "ghost"}, "Danielle Delorey": {totalEntries: 0, successRate: 40, engagementState: "fading"}}},
+            S04: { dateRange: "26 Jan - 1 Fév", entries: [], participants: {"Marie Giguère": {totalEntries: 0, successRate: 10, engagementState: "ghost"}, "Alex Delorey": {totalEntries: 0, successRate: 30, engagementState: "fading"}, "Joseph Delorey": {totalEntries: 0, successRate: 0, engagementState: "ghost"}, "Chantal Felteau": {totalEntries: 0, successRate: 20, engagementState: "fading"}, "Danielle Delorey": {totalEntries: 0, successRate: 30, engagementState: "fading"}}},
+            S05: { dateRange: "2-8 Fév", entries: [], participants: {"Marie Giguère": {totalEntries: 0, successRate: 0, engagementState: "ghost"}, "Alex Delorey": {totalEntries: 0, successRate: 20, engagementState: "fading"}, "Joseph Delorey": {totalEntries: 0, successRate: 0, engagementState: "ghost"}, "Chantal Felteau": {totalEntries: 0, successRate: 10, engagementState: "ghost"}, "Danielle Delorey": {totalEntries: 0, successRate: 40, engagementState: "fading"}}},
+            S06: { dateRange: "9-15 Fév", entries: [], participants: {"Marie Giguère": {totalEntries: 0, successRate: 40, engagementState: "fading"}, "Alex Delorey": {totalEntries: 0, successRate: 50, engagementState: "fading"}, "Joseph Delorey": {totalEntries: 0, successRate: 0, engagementState: "ghost"}, "Chantal Felteau": {totalEntries: 0, successRate: 0, engagementState: "ghost"}, "Danielle Delorey": {totalEntries: 0, successRate: 50, engagementState: "fading"}}},
+            S07: { dateRange: "16-22 Fév", entries: [], participants: {"Marie Giguère": {totalEntries: 0, successRate: 40, engagementState: "fading"}, "Alex Delorey": {totalEntries: 0, successRate: 20, engagementState: "fading"}, "Joseph Delorey": {totalEntries: 0, successRate: 15, engagementState: "ghost"}, "Chantal Felteau": {totalEntries: 0, successRate: 10, engagementState: "ghost"}, "Danielle Delorey": {totalEntries: 0, successRate: 70, engagementState: "engagement"}}},
+            S08: { dateRange: "23 Fév - 1 Mar", entries: [], participants: {"Marie Giguère": {totalEntries: 0, successRate: 20, engagementState: "fading"}, "Alex Delorey": {totalEntries: 0, successRate: 40, engagementState: "fading"}, "Joseph Delorey": {totalEntries: 0, successRate: 30, engagementState: "fading"}, "Chantal Felteau": {totalEntries: 0, successRate: 10, engagementState: "ghost"}, "Danielle Delorey": {totalEntries: 0, successRate: 60, engagementState: "engagement"}}},
+            S09: { dateRange: "2-8 Mar", entries: [{participant: "Alex Delorey", time: "07:07:40", jour: "lundi"}, {participant: "Joseph Delorey", time: "13:38:33", jour: "lundi"}, {participant: "Danielle Delorey", time: "16:22:38", jour: "lundi"}], participants: {"Marie Giguère": {totalEntries: 0, successRate: 0, engagementState: "ghost"}, "Alex Delorey": {totalEntries: 1, successRate: 20, engagementState: "fading"}, "Joseph Delorey": {totalEntries: 1, successRate: 20, engagementState: "fading"}, "Chantal Felteau": {totalEntries: 0, successRate: 0, engagementState: "ghost"}, "Danielle Delorey": {totalEntries: 1, successRate: 20, engagementState: "fading"}}}
         };
 
-        const participantNames = ["Marie Giguère", "Alex Delorey", "Joseph Delorey", "Chantal Felteau", "Danielle Delorey"];
+        const participants = ["Marie Giguère", "Alex Delorey", "Joseph Delorey", "Chantal Felteau", "Danielle Delorey"];
+        const weeks = ["S01", "S02", "S03", "S04", "S05", "S06", "S07", "S08", "S09"];
+
+        function getEngagementBadge(state) {
+            const badges = {
+                feu: { emoji: "🔥", text: "FEU", class: "engagement-feu" },
+                engagement: { emoji: "🟢", text: "ENGAGEMENT", class: "engagement-engagement" },
+                fading: { emoji: "🟡", text: "FADING", class: "engagement-fading" },
+                ghost: { emoji: "🔴", text: "GHOST", class: "engagement-ghost" }
+            };
+            return badges[state] || badges.ghost;
+        }
 
         function updateWeek() {
-            const week = document.getElementById('weekSelect').value;
+            const week = document.getElementById("weekSelect").value;
             const data = weekData[week];
 
-            // Update week info
-            document.getElementById('entryCount').textContent = data.entries.length;
-            const activeCount = Object.values(data.participants).filter(p => p.entries > 0).length;
-            document.getElementById('activeCount').textContent = activeCount;
-            const avgRate = Math.round(Object.values(data.participants).reduce((sum, p) => sum + p.rate, 0) / 5);
-            document.getElementById('avgRate').textContent = avgRate + '%';
+            document.getElementById("weekNum").textContent = week;
+            document.getElementById("totalEntries").textContent = data.entries.length;
+            document.getElementById("weekNum").textContent = week + " — " + data.dateRange;
 
-            // Update stats
-            let statsHtml = '';
-            statsHtml += '<div class="stat-card"><div class="stat-value">' + data.entries.length + '</div><div class="stat-label">Entrées</div></div>';
-            statsHtml += '<div class="stat-card"><div class="stat-value">' + activeCount + '</div><div class="stat-label">Actifs</div></div>';
-            statsHtml += '<div class="stat-card"><div class="stat-value">' + avgRate + '%</div><div class="stat-label">Taux</div></div>';
-            statsHtml += '<div class="stat-card"><div class="stat-value">' + week + '</div><div class="stat-label">Semaine</div></div>';
-            document.getElementById('statsGrid').innerHTML = statsHtml;
+            const activeCount = Object.values(data.participants).filter(p => p.totalEntries > 0).length;
+            document.getElementById("activeParticipants").textContent = activeCount;
 
-            // Update participants
-            let participantsHtml = '';
-            for (const name of participantNames) {
-                const key = name.split(' ')[0];
-                const pData = data.participants[key];
-                const badgeClass = pData.state === 'feu' ? 'engagement-fading' : (pData.state === 'engagement' ? 'engagement-fading' : 'engagement-ghost');
-                
-                participantsHtml += '<div class="participant-card">';
-                participantsHtml += '<div class="participant-name">' + name + '</div>';
-                participantsHtml += '<div class="engagement-badge ' + badgeClass + '">' + pData.state + '</div>';
-                participantsHtml += '<div class="participant-stat"><span>Entrées</span><span class="stat-val">' + pData.entries + '</span></div>';
-                participantsHtml += '<div class="participant-stat"><span>Taux</span><span class="stat-val">' + pData.rate + '%</span></div>';
-                participantsHtml += '</div>';
-            }
-            document.getElementById('participantsGrid').innerHTML = participantsHtml;
+            const avgRate = Object.values(data.participants).reduce((sum, p) => sum + p.successRate, 0) / 5;
+            document.getElementById("avgRate").textContent = Math.round(avgRate) + "%";
+
+            // Update participant cards
+            const grid = document.getElementById("participantsGrid");
+            grid.innerHTML = "";
+
+            participants.forEach(name => {
+                const p = data.participants[name];
+                const badge = getEngagementBadge(p.engagementState);
+
+                let cardHTML = '<div class="participant-card">';
+                cardHTML += '<div class="participant-name">' + name + '</div>';
+                cardHTML += '<div class="engagement-badge ' + badge.class + '">' + badge.emoji + ' ' + badge.text + '</div>';
+                cardHTML += '<div class="stat-row"><span class="stat-label">Taux</span><span class="stat-value">' + p.successRate + '%</span></div>';
+                cardHTML += '<div class="stat-row"><span class="stat-label">Entrées</span><span class="stat-value">' + p.totalEntries + '</span></div>';
+                cardHTML += '</div>';
+                grid.innerHTML += cardHTML;
+            });
 
             // Update entries
+            const entriesContainer = document.getElementById("entriesContainer");
             if (data.entries.length === 0) {
-                document.getElementById('entriesContainer').innerHTML = '<div class="empty-state">Aucune entrée cette semaine</div>';
+                entriesContainer.innerHTML = '<div class="no-entries">📭 Aucune entrée cette semaine</div>';
             } else {
-                let entriesHtml = '';
-                for (const entry of data.entries) {
-                    entriesHtml += '<div class="entry">';
-                    entriesHtml += '<div class="entry-header">';
-                    entriesHtml += '<div><div class="entry-person">✓ ' + entry.person + '</div><div class="entry-day">' + entry.day + '</div></div>';
-                    entriesHtml += '<div class="entry-time">' + entry.time + '</div>';
-                    entriesHtml += '</div></div>';
-                }
-                document.getElementById('entriesContainer').innerHTML = entriesHtml;
+                let entriesHTML = "";
+                data.entries.forEach(e => {
+                    entriesHTML += '<div class="entry"><div class="entry-header"><div><div class="entry-person">✓ ' + e.participant + '</div><div class="entry-day">' + e.jour + '</div></div><div class="entry-time">' + e.time + '</div></div></div>';
+                });
+                entriesContainer.innerHTML = entriesHTML;
             }
+        }
+
+        function switchView(view) {
+            document.getElementById("weekView").classList.toggle("active", view === "week");
+            document.getElementById("progressView").classList.toggle("active", view === "progress");
+            document.querySelectorAll(".progress-btn").forEach(btn => {
+                btn.classList.toggle("active", btn.dataset.view === view);
+            });
+
+            if (view === "progress") {
+                renderProgressView();
+            }
+        }
+
+        function renderProgressView() {
+            const grid = document.getElementById("progressGrid");
+            grid.innerHTML = "";
+
+            participants.forEach(name => {
+                const history = weeks.map(w => ({
+                    week: w,
+                    rate: weekData[w].participants[name].successRate,
+                    state: weekData[w].participants[name].engagementState
+                }));
+
+                const avgRate = history.reduce((sum, h) => sum + h.rate, 0) / history.length;
+                const trend = history[history.length - 1].rate > history[0].rate ? "↗️" : history[history.length - 1].rate < history[0].rate ? "↘️" : "→";
+
+                let barsHtml = "";
+                history.forEach((h, idx) => {
+                    const stateClass = "week-bar-" + h.state;
+                    barsHtml += '<div class="week-bar ' + stateClass + '" title="' + h.week + ' - ' + h.rate + '%">' + h.rate + '</div>';
+                });
+
+                let labelsHtml = "";
+                weeks.forEach(w => {
+                    labelsHtml += '<div class="week-label">' + w + '</div>';
+                });
+
+                let progressHtml = '<div class="participant-progress">';
+                progressHtml += '<div class="participant-progress-header"><div>' + name + ' ' + trend + '</div></div>';
+                progressHtml += '<div class="chart-container"><div class="weeks-row">' + barsHtml + '</div><div class="week-labels">' + labelsHtml + '</div></div>';
+                progressHtml += '<div class="progress-stats">';
+                progressHtml += '<div class="progress-stat"><div class="progress-stat-value">' + Math.round(avgRate) + '%</div><div class="progress-stat-label">Moyenne 9 Semaines</div></div>';
+                progressHtml += '<div class="progress-stat"><div class="progress-stat-value">' + weeks.filter(w => weekData[w].participants[name].totalEntries > 0).length + '</div><div class="progress-stat-label">Semaines Actives</div></div>';
+                progressHtml += '<div class="progress-stat"><div class="progress-stat-value">' + history[history.length - 1].rate + '%</div><div class="progress-stat-label">Taux Actuel (S09)</div></div>';
+                progressHtml += '</div></div>';
+                grid.innerHTML += progressHtml;
+            });
+
+            // Comparison table
+            let tableHtml = "<tr><th>Participant</th>";
+            weeks.forEach(w => tableHtml += "<th>" + w + "</th>");
+            tableHtml += "<th>Moyenne</th></tr>";
+
+            participants.forEach(name => {
+                tableHtml += "<tr><td class='name-col'>" + name + "</td>";
+                let sum = 0;
+                weeks.forEach(w => {
+                    const rate = weekData[w].participants[name].successRate;
+                    sum += rate;
+                    const state = weekData[w].participants[name].engagementState;
+                    tableHtml += "<td class='stat-cell' style='color: " + getStateColor(state) + "'>" + rate + "%</td>";
+                });
+                const avg = Math.round(sum / 9);
+                tableHtml += "<td class='stat-cell average-cell'>" + avg + "%</td></tr>";
+            });
+
+            document.getElementById("comparisonTable").innerHTML = tableHtml;
+        }
+
+        function getStateColor(state) {
+            const colors = {
+                feu: "#ff5e4d",
+                engagement: "#2ecc71",
+                fading: "#f39c12",
+                ghost: "#495566"
+            };
+            return colors[state] || colors.ghost;
         }
 
         function toggleTheme() {
-            const html = document.documentElement;
-            html.classList.toggle('light-mode');
-            localStorage.setItem('theme', html.classList.contains('light-mode') ? 'light' : 'dark');
-            document.querySelector('.theme-toggle').textContent = html.classList.contains('light-mode') ? '☀️ Light' : '🌙 Dark';
+            document.documentElement.classList.toggle("light-mode");
+            localStorage.setItem("theme", document.documentElement.classList.contains("light-mode") ? "light" : "dark");
+            updateThemeButton();
         }
 
-        if (localStorage.getItem('theme') === 'light') {
-            document.documentElement.classList.add('light-mode');
-            document.querySelector('.theme-toggle').textContent = '☀️ Light';
+        function updateThemeButton() {
+            const isDark = !document.documentElement.classList.contains("light-mode");
+            document.querySelector(".theme-toggle").textContent = isDark ? "☀️ Light" : "🌙 Dark";
         }
 
         // Initialize
+        if (localStorage.getItem("theme") === "light") {
+            document.documentElement.classList.add("light-mode");
+        }
+        updateThemeButton();
         updateWeek();
     </script>
 </body>
